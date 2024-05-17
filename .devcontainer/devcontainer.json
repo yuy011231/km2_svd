@@ -1,0 +1,26 @@
+{
+    "name": "Python Development Environment",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "editor.formatOnSave": true
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bungcip.better-toml",
+                "jgclark.vscode-todo-highlight",
+                "lextudio.restructuredtext",
+                "mosapride.zenkaku",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "njpwerner.autodocstring",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+    "postCreateCommand": "poetry install",
+    "remoteUser": "vscode"
+}
