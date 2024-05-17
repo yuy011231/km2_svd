@@ -1,0 +1,17 @@
+{
+    "name": "Python Development Environment",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "editor.formatOnSave": true
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
+    ],
+    "postCreateCommand": "poetry install",
+    "remoteUser": "vscode"
+}
