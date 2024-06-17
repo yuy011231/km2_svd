@@ -1,23 +1,24 @@
 from km2_svd.reader.common_reader import BaseReader
-from km2_svd.reader.itc_reader import SingleItcReader
+from km2_svd.reader.itc_reader import ItcReader
 from km2_svd.slide_window import SlideWindow
-from km2_svd.svd_calculator import SvdCalculator
+from km2_svd.svd_calculator import MultiSvdCalculator
 from km2_svd.peak_noise_control import PeakNoiseControl
 
-reader = SingleItcReader("data/210315C.ITC")
-print(len(reader.times))
-print(len(reader.power))
-print(len(reader.degree))
+#読み込み、整形
+reader = ItcReader("data/210315C.ITC")
+# reader = ItcReader("data/210107C.ITC")
+print(len(reader.split_power))
+print(len(reader.split_times))
 
-s_window = SlideWindow(reader)
-print(s_window.partial_time_count)
-print(s_window.partial_time_series_data)
+#スライド窓
+power_s_windows = [SlideWindow(target = powers) for powers in reader.split_power]
+#SVD
+cal = MultiSvdCalculator(power_s_windows)
+print(cal[0].left_singular_vectors.shape)
+print(cal[0].singular_vectors.shape)
+print(cal[0].right_singular_vectors_transpose.shape)
 
-cal = SvdCalculator(s_window)
-print(cal.right_singular_vectors_transpose)
-print(cal.left_singular_vectors)
-print(cal.singular_vectors)
+#ピークとノイズを操作
+sp = [PeakNoiseControl(c) for c in cal]
 
-sp = PeakNoiseControl(cal)
-print(sp.peak_component)
-print(sp.noise_component)
+print(sp[0].integrated_difference(reader.split_times))

@@ -16,15 +16,15 @@ from km2_svd.reader.common_reader import BaseReader
 
 
 class SlideWindow:
-    def __init__(self, reader: BaseReader, s_window_size: int = 50, s_window_step=1):
-        self.__reader = reader
+    def __init__(self, target: Iterator[float], s_window_size: int = 10, s_window_step=1):
+        self.__target = target 
         self.__s_window_size = s_window_size
         self.__s_window_step = s_window_step
 
     @property
     def partial_time_count(self):
         return int(
-            ((len(self.__reader.times) - self.__s_window_size) / self.__s_window_step)
+            ((len(self.__target) - self.__s_window_size))
             + 1
         )
 
@@ -35,13 +35,14 @@ class SlideWindow:
         Returns:
             np.ndarray[np.ndarray[float]]: 時系列分割データ
         """
+        #TODO: partial_time_count＜0を考慮したい = 窓サイズがでかすぎる
         return np.array(
             [
-                self.__reader.power[offset : offset + self.__s_window_size]
+                self.__target[offset : offset + self.__s_window_size]
                 for offset in range(0, self.partial_time_count, self.__s_window_step)
             ]
         )
-    
+
     @property
     def s_window_size(self):
         return self.__s_window_size

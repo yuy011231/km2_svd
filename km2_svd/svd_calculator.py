@@ -13,6 +13,7 @@ from typing import (
     overload,
 )
 from km2_svd.slide_window import SlideWindow
+from km2_svd.reader.common_reader import BaseReader
 
 
 class SvdCalculator:
@@ -49,7 +50,45 @@ class SvdCalculator:
             np.ndarray: 右特異ベクトルの転置
         """
         return self.__right_singular_vectors_transpose
-    
+
     @property
     def s_window_size(self) -> int:
         return self.__s_window.s_window_size
+
+class MultiSvdCalculator:
+    def __init__(self, s_windows: Iterator[SlideWindow]):
+        self.__s_windows = s_windows
+        self.__calculators = [SvdCalculator(window) for window in s_windows]
+
+    def __iter__(self):
+        return iter(self.__calculators)
+    
+    def __getitem__(self, index):
+        return self.__calculators[index]
+    
+    @property
+    def singular_vectors(self) -> np.ndarray:
+        """特異値ベクトルを返却します
+
+        Returns:
+            np.ndarray: 特異値ベクトル
+        """
+        return [cal.__singular_vectors for cal in self.__calculators]
+
+    @property
+    def left_singular_vectors(self) -> np.ndarray:
+        """左特異ベクトルを返却します。
+
+        Returns:
+            np.ndarray: 左特異ベクトル
+        """
+        return [cal.__left_singular_vectors for cal in self.__calculators]
+
+    @property
+    def right_singular_vectors_transpose(self) -> np.ndarray:
+        """右特異ベクトルの転置を返却します。
+
+        Returns:
+            np.ndarray: 右特異ベクトルの転置
+        """
+        return [cal.__right_singular_vectors_transpose for cal in self.__calculators]
