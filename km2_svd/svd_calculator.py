@@ -1,19 +1,8 @@
 import numpy as np
-import pandas as pd
-from pathlib import Path
 from typing import (
-    Generator,
-    Generic,
     Iterator,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    TypeVar,
-    overload,
 )
 from km2_svd.slide_window import SlideWindow
-from km2_svd.reader.common_reader import BaseReader
 
 
 class SvdCalculator:
@@ -55,6 +44,7 @@ class SvdCalculator:
     def s_window_size(self) -> int:
         return self.__s_window.s_window_size
 
+
 class MultiSvdCalculator:
     def __init__(self, s_windows: Iterator[SlideWindow]):
         self.__s_windows = s_windows
@@ -62,10 +52,10 @@ class MultiSvdCalculator:
 
     def __iter__(self):
         return iter(self.__calculators)
-    
+
     def __getitem__(self, index):
         return self.__calculators[index]
-    
+
     @property
     def singular_vectors(self) -> np.ndarray:
         """特異値ベクトルを返却します

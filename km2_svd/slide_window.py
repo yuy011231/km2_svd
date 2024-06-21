@@ -1,32 +1,20 @@
 import numpy as np
-import pandas as pd
-from pathlib import Path
 from typing import (
-    Generator,
-    Generic,
     Iterator,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    TypeVar,
-    overload,
 )
-from km2_svd.reader.common_reader import BaseReader
 
 
 class SlideWindow:
-    def __init__(self, target: Iterator[float], s_window_size: int = 10, s_window_step=1):
-        self.__target = target 
+    def __init__(
+        self, target: Iterator[float], s_window_size: int = 10, s_window_step=1
+    ):
+        self.__target = target
         self.__s_window_size = s_window_size
         self.__s_window_step = s_window_step
 
     @property
     def partial_time_count(self):
-        return int(
-            ((len(self.__target) - self.__s_window_size))
-            + 1
-        )
+        return int(((len(self.__target) - self.__s_window_size)) + 1)
 
     @property
     def partial_time_series_data(self) -> np.ndarray[np.ndarray[float]]:
@@ -35,7 +23,7 @@ class SlideWindow:
         Returns:
             np.ndarray[np.ndarray[float]]: 時系列分割データ
         """
-        #TODO: partial_time_count＜0を考慮したい = 窓サイズがでかすぎる
+        # TODO: partial_time_count＜0を考慮したい = 窓サイズがでかすぎる
         return np.array(
             [
                 self.__target[offset : offset + self.__s_window_size]

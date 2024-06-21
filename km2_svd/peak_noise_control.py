@@ -1,18 +1,5 @@
 import numpy as np
-import pandas as pd
 from scipy import integrate
-from pathlib import Path
-from typing import (
-    Generator,
-    Generic,
-    Iterator,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    TypeVar,
-    overload,
-)
 from km2_svd.svd_calculator import SvdCalculator
 
 
@@ -41,16 +28,19 @@ class PeakNoiseControl:
     def noise_component(self) -> np.ndarray:
         return self.__noise_component
 
-    def integrated_difference(self, times):
+    def integrated_difference(self, times_s_window) -> np.ndarray:
         """ピークとノイズの積分値の差を返却します。"""
-        print(times)
-        return [
+        return np.array(
             integrate.simps(
                 self.peak_component,
-                np.linspace(times[0], times[-1], len(self.peak_component)),
+                np.linspace(
+                    times_s_window[0], times_s_window[-1], len(self.peak_component)
+                ),
             )
             - integrate.simps(
                 self.noise_component,
-                np.linspace(times[0], times[-1], len(self.noise_component))
+                np.linspace(
+                    times_s_window[0], times_s_window[-1], len(self.noise_component)
+                ),
             )
-        ]
+        )

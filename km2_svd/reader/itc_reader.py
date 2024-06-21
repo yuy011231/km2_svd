@@ -1,23 +1,8 @@
-from abc import ABC, abstractmethod
-from datetime import datetime
-from functools import lru_cache
-from itertools import islice
-from logging import getLogger
-from pathlib import Path
-from typing import (
-    Generator,
-    Generic,
-    Iterator,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    TypeVar,
-    overload,
-)
+from typing import Iterator
 
 import numpy as np
 from km2_svd.reader.common_reader import BaseReader
+
 
 class Titration:
     def __init__(self, data: Iterator[str]):
@@ -26,7 +11,7 @@ class Titration:
         self.__column_data_body = np.array(
             [[float(item) for item in col] for col in columns]
         )
-    
+
     @property
     def times(self) -> np.ndarray[float]:
         """時間データを返却します。
@@ -35,7 +20,7 @@ class Titration:
             np.NDArray[float]: 時間データ
         """
         return self.__column_data_body[0]
-    
+
     @property
     def power(self) -> np.ndarray[float]:
         """(ITCの場合)電力データを返却します。
@@ -54,6 +39,7 @@ class Titration:
         """
         return self.__column_data_body[2]
 
+
 class ItcReader(BaseReader):
     def __init__(self, path):
         self.__path = path
@@ -65,8 +51,8 @@ class ItcReader(BaseReader):
             self.__data_body = [
                 s.replace(" ", "").replace("\n", "") for s in read_data[31:]
             ]
-        
-        columns,column = [], []
+
+        columns, column = [], []
         for data in self.__data_body:
             if "@" in data or self.__data_body.index(data) == len(self.__data_body) - 1:
                 if "@0" not in data:
@@ -111,15 +97,15 @@ class ItcReader(BaseReader):
             np.NDArray[float]: degreeデータ
         """
         return self.__column_data_body[2]
-    
+
     @property
     def split_times(self):
         return [titration.times for titration in self.__titrations]
-    
+
     @property
     def split_power(self):
         return [titration.power for titration in self.__titrations]
-    
+
     @property
     def split_degree(self):
         return [titration.degree for titration in self.__titrations]

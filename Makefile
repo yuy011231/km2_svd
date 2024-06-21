@@ -4,3 +4,7 @@ endif
 .PHONV: format
 format:
 	poetry run black ${TARGET_FILES}
+
+.PHONV: lint
+lint:
+	poetry run ruff ${TARGET_FILES}
