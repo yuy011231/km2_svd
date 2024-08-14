@@ -6,10 +6,11 @@ from km2_svd.peak_noise_control import PeakNoiseControl
 
 #読み込み、整形
 reader = ItcReader("data/210315C.ITC")
-# reader = ItcReader("data/210107C.ITC")
+#reader = ItcReader("data/210107C.ITC")
 print(len(reader.split_power))
 print(len(reader.split_times))
 print(len(reader.split_times[0]))
+reader.plot_fig()
 
 #スライド窓
 power_s_windows = [SlideWindow(target = powers) for powers in reader.split_power]

@@ -1,123 +1,55 @@
 from typing import Iterator
 
+import seaborn as sns
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from km2_svd.reader.common_reader import CommonReader
 
 
-class Titration:
-    def __init__(self, data: Iterator[str]):
-        split_data = [row.split(",") for row in data]
-        columns = np.array(list(zip(*split_data)))
-        self.__column_data_body = np.array(
-            [[float(item) for item in col] for col in columns]
-        )
-
-    @property
-    def times(self) -> np.ndarray[float]:
-        """時間データを返却します。
-
-        Returns:
-            np.NDArray[float]: 時間データ
-        """
-        return self.__column_data_body[0]
-
-    @property
-    def power(self) -> np.ndarray[float]:
-        """(ITCの場合)電力データを返却します。
-
-        Returns:
-            np.NDArray[float]: 電力データ
-        """
-        return self.__column_data_body[1]
-
-    @property
-    def degree(self) -> np.ndarray[float]:
-        """degreeを返却します。
-
-        Returns:
-            np.NDArray[float]: degreeデータ
-        """
-        return self.__column_data_body[2]
-
-
 class ItcReader(CommonReader):
+    COLUMNS=["titration", "time", "power", "degree"]
+
     def __init__(self, path):
-        self.__path = path
+        self._path = path
         with open(path, mode="rt", encoding="utf-8") as file:
             read_data = file.readlines()
-            self.__data_header = [
+            self._data_header = [
                 s.replace(" ", "").replace("\n", "") for s in read_data[:31]
             ]
-            self.__data_body = [
+            self._data_body = [
                 s.replace(" ", "").replace("\n", "") for s in read_data[31:]
             ]
 
-        columns, column = [], []
-        for data in self.__data_body:
-            if "@" in data or self.__data_body.index(data) == len(self.__data_body) - 1:
-                if "@0" not in data:
-                    columns.append(Titration(column))
-                    column = []
+        titration_count=-1
+        rows=[]
+        for data in self._data_body:
+            if "@" in data:
+                titration_count+=1
                 continue
-            column.append(data)
-        self.__titrations: Iterator[Titration] = columns
-
-        split_data = [row.split(",") for row in self.remove_at_data_body]
-        all_columns = np.array(list(zip(*split_data)))
-        self.__column_data_body = np.array(
-            [[float(item) for item in col] for col in all_columns]
-        )
-
-    def __len__(self) -> int:
-        return len(self.__data_body)
-
-    @property
-    def times(self) -> np.ndarray[float]:
-        """時間データを返却します。
-
-        Returns:
-            np.NDArray[float]: 時間データ
-        """
-        return self.__column_data_body[0]
-
-    @property
-    def power(self) -> np.ndarray[float]:
-        """(ITCの場合)電力データを返却します。
-
-        Returns:
-            np.NDArray[float]: 電力データ
-        """
-        return self.__column_data_body[1]
-
-    @property
-    def degree(self) -> np.ndarray[float]:
-        """degreeを返却します。
-
-        Returns:
-            np.NDArray[float]: degreeデータ
-        """
-        return self.__column_data_body[2]
+            row=list(map(float, data.split(",")))
+            row.insert(0, titration_count)
+            rows.append(row)
+        self.data_body=pd.DataFrame(rows, columns=self.COLUMNS)
 
     @property
     def split_times(self):
-        return [titration.times for titration in self.__titrations]
+        return self._get_split_column("time")
 
     @property
     def split_power(self):
-        return [titration.power for titration in self.__titrations]
+        return self._get_split_column("power")
 
     @property
     def split_degree(self):
-        return [titration.degree for titration in self.__titrations]
-
-    @property
-    def remove_at_data_body(self):
-        """滴定回数の区切りデータ(@を含む行)を削除したデータを返却します。
-
-        Returns:
-            _type_: _description_
-        """
-        return list([data for data in self.__data_body if "@" not in data])
+        return self._get_split_column("degree")
+    
+    def _get_split_column(self, key: str):
+        return [
+            self.data_body[self.data_body["titration"]==titration_count][key].to_numpy() 
+            for titration_count 
+            in range(self.titration_count)
+        ]
 
     @property
     def titration_count(self) -> int:
@@ -126,4 +58,19 @@ class ItcReader(CommonReader):
         Returns:
             int: 滴定回数
         """
-        return len(self.__titrations)
+        return len(self.data_body["titration"].unique())
+    
+    def plot_fig(self): 
+        plt.figure(figsize=(15, 5))  # Figureを設定
+        plt.title('Electric Power', fontsize=18)  # タイトルを追加
+        plt.xlabel("Time[sec]", size="large")  # x軸ラベルを追加
+        plt.ylabel("μcal/sec", size="large")  # y軸ラベルを追加
+        plt.minorticks_on()  # 補助目盛りを追加
+        plt.grid(which="major", color="black", alpha=0.5)  # 目盛り線の表示
+        plt.grid(which="minor", color="gray", linestyle=":")  # 目盛り線の表示
+        sns.lineplot(x="time", y="power", data=self.data_body)
+        plt.savefig("output.png")
+        plt.close()
+
+    def save_fig(self):
+        pass
