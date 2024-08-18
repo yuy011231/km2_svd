@@ -10,7 +10,9 @@ reader = ItcReader("data/210315C.ITC")
 print(len(reader.split_power))
 print(len(reader.split_times))
 print(len(reader.split_times[0]))
-reader.plot_fig()
+plotter=reader.get_plotter()
+plotter.plot()
+plotter.save_fig("output.png")
 
 #スライド窓
 power_s_windows = [SlideWindow(target = powers) for powers in reader.split_power]

@@ -1,16 +1,17 @@
-from typing import Iterator
 
+from matplotlib.path import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from km2_svd.plotter.itc_plotter import ITCPlotter
 from km2_svd.reader.common_reader import CommonReader
 
 
 class ItcReader(CommonReader):
     COLUMNS=["titration", "time", "power", "degree"]
 
-    def __init__(self, path):
+    def __init__(self, path:Path):
         self._path = path
         with open(path, mode="rt", encoding="utf-8") as file:
             read_data = file.readlines()
@@ -60,17 +61,5 @@ class ItcReader(CommonReader):
         """
         return len(self.data_body["titration"].unique())
     
-    def plot_fig(self): 
-        plt.figure(figsize=(15, 5))  # Figureを設定
-        plt.title('Electric Power', fontsize=18)  # タイトルを追加
-        plt.xlabel("Time[sec]", size="large")  # x軸ラベルを追加
-        plt.ylabel("μcal/sec", size="large")  # y軸ラベルを追加
-        plt.minorticks_on()  # 補助目盛りを追加
-        plt.grid(which="major", color="black", alpha=0.5)  # 目盛り線の表示
-        plt.grid(which="minor", color="gray", linestyle=":")  # 目盛り線の表示
-        sns.lineplot(x="time", y="power", data=self.data_body)
-        plt.savefig("output.png")
-        plt.close()
-
-    def save_fig(self):
-        pass
+    def get_plotter(self):
+        return ITCPlotter(self.data_body)
