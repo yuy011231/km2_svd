@@ -1,10 +1,10 @@
 
-from matplotlib.path import Path
+from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from km2_svd.plotter.itc_plotter import ITCPlotter
+from km2_svd.plotter.itc_plotter import ITCPlotter, TitrationPlotters
 from km2_svd.reader.common_reader import CommonReader
 
 
@@ -51,6 +51,13 @@ class ItcReader(CommonReader):
             for titration_count 
             in range(self.titration_count)
         ]
+    
+    def _get_split_df(self):
+        return [
+            self.data_body[self.data_body["titration"]==titration_count]
+            for titration_count 
+            in range(self.titration_count)
+        ]
 
     @property
     def titration_count(self) -> int:
@@ -61,5 +68,8 @@ class ItcReader(CommonReader):
         """
         return len(self.data_body["titration"].unique())
     
-    def get_plotter(self):
+    def get_titration_plotter(self):
+        return TitrationPlotters(self._get_split_df())
+    
+    def get_itc_plotter(self):
         return ITCPlotter(self.data_body)

@@ -1,3 +1,4 @@
+from pathlib import Path
 from km2_svd.reader.common_reader import CommonReader
 from km2_svd.reader.itc_reader import ItcReader
 from km2_svd.slide_window import SlideWindow
@@ -5,14 +6,18 @@ from km2_svd.svd_calculator import MultiSvdCalculator
 from km2_svd.peak_noise_control import PeakNoiseControl
 
 #読み込み、整形
-reader = ItcReader("data/210315C.ITC")
-#reader = ItcReader("data/210107C.ITC")
+#reader = ItcReader("data/210315C.ITC")
+reader = ItcReader("data/210107C.ITC")
 print(len(reader.split_power))
 print(len(reader.split_times))
 print(len(reader.split_times[0]))
-plotter=reader.get_plotter()
+plotter=reader.get_itc_plotter()
 plotter.plot()
 plotter.save_fig("output.png")
+
+t_plotter=reader.get_titration_plotter()
+t_plotter.plot()
+t_plotter.save_fig(Path("t_output"))
 
 #スライド窓
 power_s_windows = [SlideWindow(target = powers) for powers in reader.split_power]

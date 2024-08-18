@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from matplotlib.path import Path
+from pathlib import Path
 
 
 class CommonPlotter(ABC):
