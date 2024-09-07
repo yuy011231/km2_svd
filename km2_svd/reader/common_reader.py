@@ -6,19 +6,21 @@ import numpy as np
 class CommonReader(ABC):
     @property
     @abstractmethod
-    def times(self) -> np.ndarray[float]:
-        """timeを返却します。"""
+    def split_times(self):
+        pass
 
     @property
     @abstractmethod
-    def power(self) -> np.ndarray[float]:
-        """powerを返却します。"""
+    def split_powers(self):
+        pass
 
     @property
     @abstractmethod
-    def degree(self) -> np.ndarray[float]:
-        """degreeを返却します。"""
+    def split_degrees(self):
+        pass
 
+    @property
     @abstractmethod
-    def __len__(self) -> int:
-        """"""
+    def split_count(self):
+        pass
+    
