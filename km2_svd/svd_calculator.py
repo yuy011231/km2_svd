@@ -91,7 +91,7 @@ class SvdCalculator:
         for peak, noise, time in zip(peaks, noises, times):
             x_axis = np.linspace(time[0], time[-1], len(peak))
             diff_peak_noise.append(
-                simpson(peak, x_axis) - simpson(noise, x_axis)
+                simpson(y=peak, x=x_axis) - simpson(y=noise, x=x_axis)
             )
         return diff_peak_noise
     
