@@ -67,8 +67,8 @@ class ItcReader(CommonReader):
         """
         return len(self.data_body["titration"].unique())
 
-    def get_titration_plotter(self):
-        return TitrationPlotters(self._get_split_df())
+    def get_titration_plotter(self, ax=None):
+        return TitrationPlotters(self._get_split_df(), ax)
 
-    def get_itc_plotter(self):
-        return ITCPlotter(self.data_body)
+    def get_itc_plotter(self, ax=None):
+        return ITCPlotter(self.data_body, ax)

@@ -94,6 +94,6 @@ class SvdCalculator:
             )
         return diff_peak_noise
     
-    def get_power_plotter(self):
+    def get_power_plotter(self, ax=None):
         diff=self.calculation_peak_noise_diff()
-        return PowerPlotter(pd.DataFrame({"count":range(self._reader.split_count-1), "diff":diff[1:]}))
+        return PowerPlotter(pd.DataFrame({"count":range(self._reader.split_count-1), "diff":diff[1:]}), ax)

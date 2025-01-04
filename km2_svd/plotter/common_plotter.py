@@ -6,9 +6,12 @@ from pathlib import Path
 
 
 class CommonPlotter(ABC):
-    def __init__(self, target_df: pd.DataFrame):
-        self.fig = plt.figure(figsize=(12, 7))
-        self.ax = self.fig.add_subplot(1, 1, 1)
+    def __init__(self, target_df: pd.DataFrame, ax):
+        if ax is None:
+            self.fig = plt.figure(figsize=(12, 7))
+            self.ax = self.fig.add_subplot(1, 1, 1)
+        else:
+            self.ax = ax
         self.target_df = target_df
         self.axis_setting()
 
