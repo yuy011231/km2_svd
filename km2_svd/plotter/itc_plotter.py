@@ -1,5 +1,6 @@
 from typing import Sequence
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -9,7 +10,7 @@ from scipy.optimize import curve_fit
 
 
 class ITCPlotter(CommonPlotter):
-    def __init__(self, target_df: pd.DataFrame, ax):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
         super().__init__(target_df, ax)
 
     def axis_setting(self):
@@ -40,7 +41,7 @@ class TitrationPlotters:
 
 
 class TitrationPlotter(CommonPlotter):
-    def __init__(self, target_df: pd.DataFrame, ax):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
         super().__init__(target_df, ax)
 
     def axis_setting(self):
@@ -57,7 +58,7 @@ class TitrationPlotter(CommonPlotter):
 
 
 class PowerPlotter(CommonPlotter):
-    def __init__(self, target_df: pd.DataFrame, ax):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
         super().__init__(target_df, ax)
 
     def axis_setting(self):

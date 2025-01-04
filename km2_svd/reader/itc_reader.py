@@ -1,6 +1,7 @@
 from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 import numpy as np
 import pandas as pd
 from km2_svd.plotter.itc_plotter import ITCPlotter, TitrationPlotters
@@ -67,8 +68,8 @@ class ItcReader(CommonReader):
         """
         return len(self.data_body["titration"].unique())
 
-    def get_titration_plotter(self, ax=None):
+    def get_titration_plotter(self, ax: Axes=None):
         return TitrationPlotters(self._get_split_df(), ax)
 
-    def get_itc_plotter(self, ax=None):
+    def get_itc_plotter(self, ax: Axes=None):
         return ITCPlotter(self.data_body, ax)

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from matplotlib.axes import Axes
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -6,7 +7,7 @@ from pathlib import Path
 
 
 class CommonPlotter(ABC):
-    def __init__(self, target_df: pd.DataFrame, ax):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
         if ax is None:
             self.fig = plt.figure(figsize=(12, 7))
             self.ax = self.fig.add_subplot(1, 1, 1)
