@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib.axes import Axes
 from typing import Iterator
 import pandas as pd
-from scipy import integrate
+from scipy.integrate import simpson
 from km2_svd.reader.common_reader import CommonReader
 
 from km2_svd.plotter.itc_plotter import PowerPlotter
@@ -91,7 +91,7 @@ class SvdCalculator:
         for peak, noise, time in zip(peaks, noises, times):
             x_axis = np.linspace(time[0], time[-1], len(peak))
             diff_peak_noise.append(
-                integrate.simps(peak, x_axis) - integrate.simps(noise, x_axis)
+                simpson(peak, x_axis) - simpson(noise, x_axis)
             )
         return diff_peak_noise
     
