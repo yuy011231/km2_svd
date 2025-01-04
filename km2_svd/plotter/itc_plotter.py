@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from km2_svd.plotter.common_plotter import CommonPlotter
+from km2_svd.plotter.axis_settings import itc_axis_setting, titration_axis_setting, power_axis_setting
 from scipy.optimize import curve_fit
 
 
@@ -15,11 +16,7 @@ class ITCPlotter(CommonPlotter):
 
     def axis_setting(self):
         """グラフの軸設定を行います。"""
-        self.ax.set_xlabel("Time[sec]", size="large")
-        self.ax.set_ylabel("μcal/sec", size="large")
-        self.ax.minorticks_on()
-        self.ax.grid(which="major", color="black", alpha=0.5)
-        self.ax.grid(which="minor", color="gray", linestyle=":")
+        itc_axis_setting(self.ax)
 
     def plot(self):
         """指定データをプロットします。"""
@@ -46,11 +43,7 @@ class TitrationPlotter(CommonPlotter):
 
     def axis_setting(self):
         """グラフの軸設定を行います。"""
-        self.ax.set_xlabel("Time[sec]", size="large")
-        self.ax.set_ylabel("μcal/sec", size="large")
-        self.ax.minorticks_on()
-        self.ax.grid(which="major", color="black", alpha=0.5)
-        self.ax.grid(which="minor", color="gray", linestyle=":")
+        titration_axis_setting(self.ax)
 
     def plot(self):
         """指定データをプロットします。"""
@@ -63,11 +56,7 @@ class PowerPlotter(CommonPlotter):
 
     def axis_setting(self):
         """グラフの軸設定を行います。"""
-        self.ax.set_xlabel("molar ratio", size="large")
-        self.ax.set_ylabel("kJ/mol", size="large")
-        self.ax.minorticks_on()
-        self.ax.grid(which="major", color="black", alpha=0.5)
-        self.ax.grid(which="minor", color="gray", linestyle=":")
+        power_axis_setting(self.ax)
 
     def plot(self):
         """指定データをプロットします。"""
