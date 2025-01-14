@@ -22,34 +22,6 @@ class ITCPlotter(CommonPlotter):
         """指定データをプロットします。"""
         sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
 
-
-class TitrationPlotters:
-    def __init__(self, target_dfs: Sequence[pd.DataFrame]):
-        self.plotters = [TitrationPlotter(df) for df in target_dfs]
-
-    def plot(self):
-        for plotter in self.plotters:
-            plotter.plot()
-
-    def save_fig(self, output_path: Path):
-        output_path.mkdir(parents=True, exist_ok=True)
-        for index, plotter in enumerate(self.plotters):
-            plotter.save_fig(output_path / f"titration-{index}.png")
-
-
-class TitrationPlotter(CommonPlotter):
-    def __init__(self, target_df: pd.DataFrame, ax: Axes):
-        super().__init__(target_df, ax)
-
-    def axis_setting(self):
-        """グラフの軸設定を行います。"""
-        titration_axis_setting(self.ax)
-
-    def plot(self):
-        """指定データをプロットします。"""
-        sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
-
-
 class PowerPlotter(CommonPlotter):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
         super().__init__(target_df, ax)
