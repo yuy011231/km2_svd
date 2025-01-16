@@ -12,12 +12,10 @@ class SvdCalculator:
     def __init__(
         self,
         reader: CommonReader,
-        peak_threshold: int,
         s_window_size: int,
         s_window_step: int = 1,
     ):
         self._reader = reader
-        self._peak_threshold = peak_threshold
         self._s_window_size = self._correction_s_window(s_window_size)
         self._s_window_step = s_window_step
 
@@ -60,32 +58,42 @@ class SvdCalculator:
             U, s, V = np.linalg.svd(slice_power, full_matrices=True)
             result.append((U, s, V))
         return result
+    
+    def _reproduction(self, u, s, v, threshold: int):
+        k = np.sum(s >= threshold)
+        s_denoised = np.zeros_like(s)
+        s_denoised[:k] = s[:k]
+        # s_denoised_matrix = np.diag(s_denoised)
+        s_denoised_matrix = np.zeros((u.shape[1], v.shape[0]))  # 必要に応じてゼロで埋める
+        np.fill_diagonal(s_denoised_matrix, s_denoised[:min(u.shape[1], v.shape[0])])
+        denoised = np.dot(u, np.dot(s_denoised_matrix, v))
+        return denoised
 
-    def _peak_reproduction(self, u, s, v):
-        return sum(u[0][i] * s[i] * v[i] for i in range(self._peak_threshold))
+    def _peak_reproduction(self, u, s, v, peak_threshold: int):
+        return sum(u[0][i] * s[i] * v[i] for i in range(peak_threshold))
 
-    def _noise_reproduction(self, u, s, v, split_power):
+    def _noise_reproduction(self, u, s, v, split_power, peak_threshold:int):
         if len(split_power) > 2 * self._s_window_size:
             return sum(
                 u[0][i] * s[i] * v[i]
-                for i in range(self._peak_threshold, self._s_window_size)
+                for i in range(peak_threshold, self._s_window_size)
             )
         else:
             return sum(
                 u[0][i] * s[i] * v[i]
-                for i in range(self._peak_threshold, (split_power - self.s_window_size))
+                for i in range(peak_threshold, (split_power - self.s_window_size))
             )
 
-    def calculation_peak_noise(self):
+    def _calculation_peak_noise(self, peak_threshold:int):
         peaks = []
         noises = []
         for (u, s, v), split_power in zip(self._svd(), self._reader.split_powers):
-            peaks.append(self._peak_reproduction(u, s, v))
-            noises.append(self._noise_reproduction(u, s, v, split_power))
+            peaks.append(self._peak_reproduction(u, s, v, peak_threshold))
+            noises.append(self._noise_reproduction(u, s, v, split_power, peak_threshold))
         return peaks, noises
 
-    def calculation_peak_noise_diff(self):
-        peaks, noises = self.calculation_peak_noise()
+    def calculation_peak_noise_diff(self, peak_threshold:int):
+        peaks, noises = self._calculation_peak_noise(peak_threshold)
         times = self._reader.split_times
         diff_peak_noise = []
         for peak, noise, time in zip(peaks, noises, times):
@@ -96,5 +104,30 @@ class SvdCalculator:
         return diff_peak_noise
     
     def get_power_plotter(self, ax: Axes=None):
-        diff=self.calculation_peak_noise_diff()
+        diff=self.calculation_peak_noise_diff(4)
         return PowerPlotter(pd.DataFrame({"count":range(self._reader.split_count-1), "diff":diff[1:]}), ax)
+
+    def _reconstruct_from_windows(self, windows: list, origin_len: int):
+        reconstructed = np.zeros(
+            (origin_len,), dtype=np.float64
+        )
+        counts = np.zeros_like(reconstructed)
+        for i, window in enumerate(windows):
+            start = i * self._s_window_step
+            end = start + self._s_window_size
+            reconstructed[start:end] += window
+            counts[start:end] += 1
+        return reconstructed / np.maximum(counts, 1)
+    
+    def get_noise_removal_power(self, peak_threshold: int):
+        result = []
+        for (u, s, v), split_time, split_power in zip(
+            self._svd(), self._reader.split_times, self._reader.split_powers
+        ):
+            reconstructed_power = self._reconstruct_from_windows(self._reproduction(u, s, v, peak_threshold), len(split_power))
+            df = pd.DataFrame({
+                "time": split_time,
+                "power": reconstructed_power,
+            })
+            result.append(df)
+        return result
