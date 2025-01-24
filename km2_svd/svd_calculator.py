@@ -104,6 +104,7 @@ class SvdCalculator:
         return diff_peak_noise
     
     def get_power_plotter(self, ax: Axes=None):
+        # TODO: ピークの閾値を変えられるようにする
         diff=self.calculation_peak_noise_diff(4)
         return PowerPlotter(pd.DataFrame({"count":range(self._reader.split_count-1), "diff":diff[1:]}), ax)
 

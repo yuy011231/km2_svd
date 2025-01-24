@@ -8,15 +8,15 @@ import seaborn as sns
 from km2_svd.plotter.common_plotter import CommonPlotter
 
 class TitrationPlotters:
-    def __init__(self, target_dfs: Sequence[pd.DataFrame]):
-        self.plotters = [TitrationPlotter(df) for df in target_dfs]
+    def __init__(self, target_dfs: Sequence[pd.DataFrame], axes: Sequence[Axes]=None):
+        self.plotters = [TitrationPlotter(df, ax) for df, ax in zip(target_dfs, axes)]
 
     def plot(self):
         for plotter in self.plotters:
             plotter.plot()
 
     def save_fig(self, output_path: Path):
-        output_path.mkdir(parents=True, exist_ok=True)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         for index, plotter in enumerate(self.plotters):
             plotter.save_fig(output_path / f"titration-{index}.png")
 
