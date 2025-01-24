@@ -8,11 +8,7 @@ from pathlib import Path
 
 class CommonPlotter(ABC):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
-        if ax is None:
-            self.fig = plt.figure(figsize=(12, 7))
-            self.ax = self.fig.add_subplot(1, 1, 1)
-        else:
-            self.ax = ax
+        self.ax = ax
         self.target_df = target_df
         self.axis_setting()
 
@@ -28,4 +24,4 @@ class CommonPlotter(ABC):
         self.plot()
 
     def save_fig(self, output_path: Path):
-        self.fig.savefig(output_path)
+        self.ax.figure.savefig(output_path)

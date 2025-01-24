@@ -23,3 +23,18 @@ def power_axis_setting(ax: Axes):
     ax.minorticks_on()
     ax.grid(which="major", color="black", alpha=0.5)
     ax.grid(which="minor", color="gray", linestyle=":")
+
+def singular_value_axis_setting(ax: Axes):
+    """singular_valueグラフの軸設定を行います。"""
+    ax.set_xlabel("k", size="large")
+    ax.set_ylabel("sk", size="large")
+    ax.minorticks_on()
+
+def peak_noise_axis_setting(ax: Axes):
+    """peakグラフの軸設定を行います。"""
+    ax.set_xlabel("Time[sec]", size="large")
+    # ax.set_ylabel("μcal/sec", size="large")
+    ax.minorticks_on()
+    ax.grid(which="major", color="black", alpha=0.5)
+    ax.grid(which="minor", color="gray", linestyle=":")
+

@@ -9,8 +9,6 @@ from km2_svd.reader.common_reader import CommonReader
 
 
 class ItcReader(CommonReader):
-    COLUMNS = ["titration", "time", "power", "degree"]
-
     def __init__(self, path: Path):
         self._path = path
         with open(path, mode="rt", encoding="utf-8") as file:
@@ -18,20 +16,20 @@ class ItcReader(CommonReader):
             self._data_header = [
                 s.replace(" ", "").replace("\n", "") for s in read_data[:31]
             ]
-            self._data_body = [
+            data_body = [
                 s.replace(" ", "").replace("\n", "") for s in read_data[31:]
             ]
 
         split_count = -1
         rows = []
-        for data in self._data_body:
+        for data in data_body:
             if "@" in data:
                 split_count += 1
                 continue
             row = list(map(float, data.split(",")))
             row.insert(0, split_count)
             rows.append(row)
-        self.data_body = pd.DataFrame(rows, columns=self.COLUMNS)
+        self.data_df = pd.DataFrame(rows, columns=self.COLUMNS)
 
     @property
     def split_times(self):
@@ -45,28 +43,12 @@ class ItcReader(CommonReader):
     def split_degrees(self):
         return self._get_split_column("degree")
 
-    def _get_split_column(self, key: str):
-        return [
-            self.data_body[self.data_body["titration"] == split_count][
-                key
-            ].to_numpy()
-            for split_count in range(self.split_count)
-        ]
-
-    def _get_split_df(self):
-        return [
-            self.data_body[self.data_body["titration"] == split_count]
-            for split_count in range(self.split_count)
-        ]
-
     @property
     def split_count(self) -> int:
-        """滴定回数を返却します。
-
-        Returns:
-            int: 滴定回数
-        """
-        return len(self.data_body["titration"].unique())
+        return len(self.data_df["titration"].unique())
+    
+    def get_titration_df(self, titration_count: int) -> pd.DataFrame:
+        return self.data_df[self.data_df["titration"] == titration_count]
 
     def get_itc_plotter(self, ax: Axes=None):
-        return ITCPlotter(self.data_body, ax)
+        return ITCPlotter(self.data_df, ax)
