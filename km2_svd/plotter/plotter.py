@@ -22,8 +22,12 @@ class SvdPlotter:
     def singular_value_plot(self):
         self.singular_value_plotter.plot()
     
-    def peak_noise_plot(self):
+    def peak_plot(self):
+        self.peak_plotter.target_df = self.svd_calculator.get_reproduction_peak_df()
         self.peak_plotter.plot()
+        
+    def noise_plot(self):
+        self.noise_plotter.target_df = self.svd_calculator.get_reproduction_noise_df()
         self.noise_plotter.plot()
 
 

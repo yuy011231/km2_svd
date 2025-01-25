@@ -21,6 +21,8 @@ class CommonPlotter(ABC):
         """グラフを描画します。"""
 
     def replot(self):
+        self.ax.clear()
+        self.axis_setting()
         self.plot()
 
     def save_fig(self, output_path: Path):
