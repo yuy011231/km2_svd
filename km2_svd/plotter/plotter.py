@@ -67,3 +67,17 @@ class NoisePlotter(CommonPlotter):
 
     def plot(self):
         sns.lineplot(x="time", y="noise", data=self.target_df, ax=self.ax)
+
+class PeakNoiseDiffPlotter(CommonPlotter):
+    def __init__(self, svd_calculators: list[SvdCalculator], ax: Axes):
+        self.svd_calculators = svd_calculators
+        self.peak_noise_diff_list = [svd_calculator.calculation_peak_noise_diff() for svd_calculator in svd_calculators]
+        self.counts = range(1, len(svd_calculators)+1)
+        target_df = pd.DataFrame({"count": self.counts, "peak_noise_diff": self.peak_noise_diff_list})
+        super().__init__(target_df, ax)
+
+    def axis_setting(self):
+        peak_noise_axis_setting(self.ax)
+
+    def plot(self):
+        sns.lineplot(x="count", y="peak_noise_diff", data=self.target_df, ax=self.ax)
