@@ -1,9 +1,8 @@
+from typing import Any
 import numpy as np
-from matplotlib.axes import Axes
-from typing import Any, Iterator
 import pandas as pd
+import scipy.linalg
 from scipy.integrate import simpson
-from km2_svd.reader.common_reader import CommonReader
 
 
 class SvdCalculator:
@@ -29,7 +28,7 @@ class SvdCalculator:
     
     def svd(self):
         window_slice_power = self._slice_by_window(self.data_df["power"])
-        U, s, V = np.linalg.svd(window_slice_power, full_matrices=True)
+        U, s, V = scipy.linalg.svd(window_slice_power, full_matrices=False)
         return U, s, V
     
     def get_reproduction_peak_df(self):
@@ -42,36 +41,29 @@ class SvdCalculator:
         noise = self._reconstruct_from_windows(self._reproduction_noise(u, s, v), len(self.data_df))
         return pd.DataFrame({"time": self.data_df["time"], "noise": noise})
     
-    def _reproduction_peak(self, u: np.ndarray[Any], s: np.ndarray[Any], v: np.ndarray[Any]):
-        if self.threshold > len(s):
+    def _reproduction_peak(self, U: np.ndarray[Any], S: np.ndarray[Any], Vt: np.ndarray[Any]):
+        if self.threshold > len(S):
             raise ValueError("threshold is larger than the number of singular values")        
-        s_peak = np.zeros((u.shape[0], v.shape[0]))
-        np.fill_diagonal(s_peak, s[:self.threshold])
-        return np.dot(u, np.dot(s_peak, v))
+        S[self.threshold:] = 0
+        return U @ np.diag(S) @ Vt
     
-    def _reproduction_noise(self, u: np.ndarray[Any], s: np.ndarray[Any], v: np.ndarray[Any]):
-        if self.threshold > len(s):
+    def _reproduction_noise(self, U: np.ndarray[Any], S: np.ndarray[Any], Vt: np.ndarray[Any]):
+        if self.threshold > len(S):
             raise ValueError("threshold is larger than the number of singular values")        
-        s_noise = np.zeros((u.shape[0], v.shape[0]))
-        s_matrix = np.diag(s[self.threshold:])
-        s_noise[
-            self.threshold:self.threshold+s_matrix.shape[0],
-            self.threshold:self.threshold+s_matrix.shape[1]
-            ] = s_matrix
-        return np.dot(u, np.dot(s_noise, v))
+        S[:self.threshold] = 0
+        return U @ np.diag(S) @ Vt
     
-    def _reconstruct_from_windows(self, windows: list, origin_len: int):
+    def _reconstruct_from_windows(self, data: list, origin_len: int):
         reconstructed = np.zeros(
             (origin_len,), dtype=np.float64
         )
         counts = np.zeros_like(reconstructed)
-        for i, window in enumerate(windows):
+        for i, window in enumerate(data):
             start = i * self.slide_window_step
             end = start + self.slide_window_size
             reconstructed[start:end] += window
             counts[start:end] += 1
         return reconstructed / np.maximum(counts, 1)
-    
 
     def calculation_peak_noise_diff(self) -> float:
         u, s, v = self.svd()

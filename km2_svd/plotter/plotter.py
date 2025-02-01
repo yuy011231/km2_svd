@@ -73,7 +73,6 @@ class PeakPlotter(CommonPlotter):
     def plot(self):
         sns.lineplot(x="time", y="peak", data=self.target_df, ax=self.ax)
 
-
 class NoisePlotter(CommonPlotter):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
         super().__init__(ax)
@@ -98,6 +97,17 @@ class PeakNoisePlotter(CommonPlotter):
         sns.lineplot(x="time", y="peak", data=self.peak_df, ax=self.ax, label='Peak', color='blue')
         sns.lineplot(x="time", y="noise", data=self.noise_df, ax=self.ax, label='Noise', color='red')
         self.ax.legend()
+
+class PowerPlotter(CommonPlotter):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
+        super().__init__(ax)
+        self.target_df = target_df
+
+    def axis_setting(self):
+        peak_noise_axis_setting(self.ax)
+
+    def plot(self):
+        sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
 
 class PeakNoiseDiffPlotter(CommonPlotter):
     def __init__(self, svd_calculators: list[SvdCalculator], ax: Axes):

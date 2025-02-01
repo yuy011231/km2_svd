@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from matplotlib import pyplot as plt
-from km2_svd.plotter.plotter import SvdPlotter, PeakNoiseDiffPlotter
+from km2_svd.plotter.plotter import SvdPlotter, PeakNoiseDiffPlotter, PowerPlotter
 from km2_svd.reader.common_reader import CommonReader
 from km2_svd.reader.itc_reader import ItcReader
 from km2_svd.svd_calculator import SvdCalculator
@@ -9,6 +9,12 @@ from km2_svd.svd_calculator import SvdCalculator
 reader = ItcReader("data/210107C.ITC")
 
 svd_calculators = [SvdCalculator(reader.get_titration_df(i), 10, 1, 4) for i in range(1, reader.split_count)]
+
+fig = plt.figure(figsize=(12, 7))
+ax = fig.add_subplot(1, 1, 1)
+plotter = PowerPlotter(reader.get_titration_df(5), ax)
+plotter.plot()
+plotter.save_fig("power.png")
 
 fig = plt.figure(figsize=(12, 7))
 ax = fig.add_subplot(1, 1, 1)
