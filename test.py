@@ -8,11 +8,6 @@ from km2_svd.svd_calculator import SvdCalculator
 #読み込み、整形
 reader = ItcReader("data/210107C.ITC")
 
-print(len(reader.split_powers[0]))
-print(reader.split_powers)
-print(len(reader.split_times))
-
-
 svd_calculators = [SvdCalculator(reader.get_titration_df(i), 10, 1, 4) for i in range(1, reader.split_count)]
 
 fig = plt.figure(figsize=(12, 7))
@@ -26,7 +21,7 @@ ax4 = fig4.add_subplot(1, 1, 1)
 fig5 = plt.figure(figsize=(12, 7))
 ax5 = fig5.add_subplot(1, 1, 1)
 
-svd_calculator = SvdCalculator(reader.get_titration_df(5), 10, 1, 5)
+svd_calculator = SvdCalculator(reader.get_titration_df(5), 10, 1, 3)
 svd_plotter = SvdPlotter(svd_calculator, ax, ax2, ax3, ax5)
 svd_plotter.singular_value_plotter.plot()
 svd_plotter.singular_value_plotter.save_fig("singular_value.png")

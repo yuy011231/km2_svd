@@ -45,19 +45,20 @@ class SvdCalculator:
     def _reproduction_peak(self, u: np.ndarray[Any], s: np.ndarray[Any], v: np.ndarray[Any]):
         if self.threshold > len(s):
             raise ValueError("threshold is larger than the number of singular values")        
-        u_k = u[:, :self.threshold]
-        s_k = np.diag(s[:self.threshold])
-        v_k = v[:self.threshold, :]
-        return np.dot(u_k, np.dot(s_k, v_k))
+        s_peak = np.zeros((u.shape[0], v.shape[0]))
+        np.fill_diagonal(s_peak, s[:self.threshold])
+        return np.dot(u, np.dot(s_peak, v))
     
     def _reproduction_noise(self, u: np.ndarray[Any], s: np.ndarray[Any], v: np.ndarray[Any]):
         if self.threshold > len(s):
             raise ValueError("threshold is larger than the number of singular values")        
-        u_noise = u[:, self.threshold:]
-        v_noise = v[self.threshold:, :]
-        s_noise = np.zeros((u_noise.shape[1], v_noise.shape[0]))
-        np.fill_diagonal(s_noise, s[self.threshold:])
-        return np.dot(u_noise, np.dot(s_noise, v_noise))
+        s_noise = np.zeros((u.shape[0], v.shape[0]))
+        s_matrix = np.diag(s[self.threshold:])
+        s_noise[
+            self.threshold:self.threshold+s_matrix.shape[0],
+            self.threshold:self.threshold+s_matrix.shape[1]
+            ] = s_matrix
+        return np.dot(u, np.dot(s_noise, v))
     
     def _reconstruct_from_windows(self, windows: list, origin_len: int):
         reconstructed = np.zeros(
