@@ -5,8 +5,6 @@ import pandas as pd
 from scipy.integrate import simpson
 from km2_svd.reader.common_reader import CommonReader
 
-from km2_svd.plotter.itc_plotter import PowerPlotter
-
 
 class SvdCalculator:
     def __init__(self, data_df: pd.DataFrame, slide_window_size: int, slide_window_step: int, threshold: int):
@@ -45,22 +43,21 @@ class SvdCalculator:
         return pd.DataFrame({"time": self.data_df["time"], "noise": noise})
     
     def _reproduction_peak(self, u: np.ndarray[Any], s: np.ndarray[Any], v: np.ndarray[Any]):
-        k = np.sum(s >= self.threshold)
-        peak = np.zeros_like(s)
-        peak[:k] = s[:k]
-        peak_matrix = np.zeros((u.shape[1], v.shape[0]))
-        np.fill_diagonal(peak_matrix, peak[:min(u.shape[1], v.shape[0])])
-        reproduction = np.dot(u, np.dot(peak_matrix, v))
-        return reproduction
+        if self.threshold > len(s):
+            raise ValueError("threshold is larger than the number of singular values")        
+        u_k = u[:, :self.threshold]
+        s_k = np.diag(s[:self.threshold])
+        v_k = v[:self.threshold, :]
+        return np.dot(u_k, np.dot(s_k, v_k))
     
     def _reproduction_noise(self, u: np.ndarray[Any], s: np.ndarray[Any], v: np.ndarray[Any]):
-        k = np.sum(s < self.threshold)
-        noise = np.zeros_like(s)
-        noise[:k] = s[:k]
-        noise_matrix = np.zeros((u.shape[1], v.shape[0]))
-        np.fill_diagonal(noise_matrix, noise[:min(u.shape[1], v.shape[0])])
-        reproduction = np.dot(u, np.dot(noise_matrix, v))
-        return reproduction
+        if self.threshold > len(s):
+            raise ValueError("threshold is larger than the number of singular values")        
+        u_noise = u[:, self.threshold:]
+        v_noise = v[self.threshold:, :]
+        s_noise = np.zeros((u_noise.shape[1], v_noise.shape[0]))
+        np.fill_diagonal(s_noise, s[self.threshold:])
+        return np.dot(u_noise, np.dot(s_noise, v_noise))
     
     def _reconstruct_from_windows(self, windows: list, origin_len: int):
         reconstructed = np.zeros(
