@@ -7,9 +7,8 @@ from pathlib import Path
 
 
 class CommonPlotter(ABC):
-    def __init__(self, target_df: pd.DataFrame, ax: Axes):
+    def __init__(self, ax: Axes):
         self.ax = ax
-        self.target_df = target_df
         self.axis_setting()
 
     @abstractmethod

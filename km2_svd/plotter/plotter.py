@@ -9,11 +9,16 @@ from km2_svd.plotter.axis_settings import singular_value_axis_setting, peak_nois
 
 
 class SvdPlotter:
-    def __init__(self, svd_calculator: SvdCalculator, singular_value_ax: Axes, peak_ax: Axes, noise_ax: Axes):
+    def __init__(self, svd_calculator: SvdCalculator, singular_value_ax: Axes, peak_ax: Axes, noise_ax: Axes, peak_noise_ax: Axes):
         self.svd_calculator = svd_calculator
         self.singular_value_plotter = SingularValuePlotter(self.singular_value_df(), singular_value_ax)
         self.peak_plotter = PeakPlotter(self.svd_calculator.get_reproduction_peak_df(), peak_ax)
         self.noise_plotter = NoisePlotter(self.svd_calculator.get_reproduction_noise_df(), noise_ax)
+        self.peak_baseline_plotter = PeakBaselinePlotter(
+            self.svd_calculator.get_reproduction_peak_df(), 
+            self.svd_calculator.get_reproduction_noise_df(), 
+            peak_noise_ax
+            )
     
     def singular_value_df(self):
         _, s, _ = self.svd_calculator.svd()
@@ -29,11 +34,17 @@ class SvdPlotter:
     def noise_plot(self):
         self.noise_plotter.target_df = self.svd_calculator.get_reproduction_noise_df()
         self.noise_plotter.replot()
+    
+    def peak_baseline_plot(self):
+        self.peak_baseline_plotter.peak_df = self.svd_calculator.get_reproduction_peak_df()
+        self.peak_baseline_plotter.baseline_df = self.svd_calculator.get_baseline_df()
+        self.peak_baseline_plotter.replot()
 
 
 class SingularValuePlotter(CommonPlotter):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
-        super().__init__(target_df, ax)
+        super().__init__(ax)
+        self.target_df = target_df
 
     def axis_setting(self):
         self.ax.set_yscale("log")
@@ -53,7 +64,8 @@ class SingularValuePlotter(CommonPlotter):
 
 class PeakPlotter(CommonPlotter):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
-        super().__init__(target_df, ax)
+        super().__init__(ax)
+        self.target_df = target_df
 
     def axis_setting(self):
         peak_noise_axis_setting(self.ax)
@@ -61,24 +73,49 @@ class PeakPlotter(CommonPlotter):
     def plot(self):
         sns.lineplot(x="time", y="peak", data=self.target_df, ax=self.ax)
 
-
 class NoisePlotter(CommonPlotter):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
-        super().__init__(target_df, ax)
+        super().__init__(ax)
+        self.target_df = target_df
 
     def axis_setting(self):
         peak_noise_axis_setting(self.ax)
 
     def plot(self):
         sns.lineplot(x="time", y="noise", data=self.target_df, ax=self.ax)
+    
+class PeakBaselinePlotter(CommonPlotter):
+    def __init__(self, peak_df: pd.DataFrame, baseline_df: pd.DataFrame, ax: Axes):
+        super().__init__(ax)
+        self.peak_df = peak_df
+        self.baseline_df = baseline_df
+
+    def axis_setting(self):
+        peak_noise_axis_setting(self.ax)
+
+    def plot(self):
+        sns.lineplot(x="time", y="peak", data=self.peak_df, ax=self.ax, label='Peak', color='blue')
+        sns.lineplot(x="time", y="baseline", data=self.baseline_df, ax=self.ax, label='Baseline', color='red')
+        self.ax.legend()
+
+class PowerPlotter(CommonPlotter):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
+        super().__init__(ax)
+        self.target_df = target_df
+
+    def axis_setting(self):
+        peak_noise_axis_setting(self.ax)
+
+    def plot(self):
+        sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
 
 class PeakNoiseDiffPlotter(CommonPlotter):
     def __init__(self, svd_calculators: list[SvdCalculator], ax: Axes):
         self.svd_calculators = svd_calculators
         self.peak_noise_diff_list = [svd_calculator.calculation_peak_noise_diff() for svd_calculator in svd_calculators]
         self.counts = range(1, len(svd_calculators)+1)
-        target_df = pd.DataFrame({"count": self.counts, "peak_noise_diff": self.peak_noise_diff_list})
-        super().__init__(target_df, ax)
+        self.target_df = pd.DataFrame({"count": self.counts, "peak_noise_diff": self.peak_noise_diff_list})
+        super().__init__(ax)
 
     def axis_setting(self):
         peak_noise_axis_setting(self.ax)
