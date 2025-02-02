@@ -14,7 +14,7 @@ class SvdPlotter:
         self.singular_value_plotter = SingularValuePlotter(self.singular_value_df(), singular_value_ax)
         self.peak_plotter = PeakPlotter(self.svd_calculator.get_reproduction_peak_df(), peak_ax)
         self.noise_plotter = NoisePlotter(self.svd_calculator.get_reproduction_noise_df(), noise_ax)
-        self.peak_noise_plotter = PeakNoisePlotter(
+        self.peak_baseline_plotter = PeakBaselinePlotter(
             self.svd_calculator.get_reproduction_peak_df(), 
             self.svd_calculator.get_reproduction_noise_df(), 
             peak_noise_ax
@@ -35,10 +35,10 @@ class SvdPlotter:
         self.noise_plotter.target_df = self.svd_calculator.get_reproduction_noise_df()
         self.noise_plotter.replot()
     
-    def peak_noise_plot(self):
-        self.peak_noise_plotter.peak_df = self.svd_calculator.get_reproduction_peak_df()
-        self.peak_noise_plotter.noise_df = self.svd_calculator.get_reproduction_noise_df()
-        self.peak_noise_plotter.replot()
+    def peak_baseline_plot(self):
+        self.peak_baseline_plotter.peak_df = self.svd_calculator.get_reproduction_peak_df()
+        self.peak_baseline_plotter.baseline_df = self.svd_calculator.get_baseline_df()
+        self.peak_baseline_plotter.replot()
 
 
 class SingularValuePlotter(CommonPlotter):
@@ -84,18 +84,18 @@ class NoisePlotter(CommonPlotter):
     def plot(self):
         sns.lineplot(x="time", y="noise", data=self.target_df, ax=self.ax)
     
-class PeakNoisePlotter(CommonPlotter):
-    def __init__(self, peak_df: pd.DataFrame, noise_df: pd.DataFrame, ax: Axes):
+class PeakBaselinePlotter(CommonPlotter):
+    def __init__(self, peak_df: pd.DataFrame, baseline_df: pd.DataFrame, ax: Axes):
         super().__init__(ax)
         self.peak_df = peak_df
-        self.noise_df = noise_df
+        self.baseline_df = baseline_df
 
     def axis_setting(self):
         peak_noise_axis_setting(self.ax)
 
     def plot(self):
         sns.lineplot(x="time", y="peak", data=self.peak_df, ax=self.ax, label='Peak', color='blue')
-        sns.lineplot(x="time", y="noise", data=self.noise_df, ax=self.ax, label='Noise', color='red')
+        sns.lineplot(x="time", y="baseline", data=self.baseline_df, ax=self.ax, label='Baseline', color='red')
         self.ax.legend()
 
 class PowerPlotter(CommonPlotter):

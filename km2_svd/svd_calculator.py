@@ -3,14 +3,18 @@ import numpy as np
 import pandas as pd
 import scipy.linalg
 from scipy.integrate import simpson
+from scipy.signal import medfilt
+from scipy.optimize import curve_fit
 
 
 class SvdCalculator:
-    def __init__(self, data_df: pd.DataFrame, slide_window_size: int, slide_window_step: int, threshold: int):
+    def __init__(self, data_df: pd.DataFrame, slide_window_size: int, slide_window_step: int, threshold: int, peak_region: tuple = (1, 150), *, is_linear: bool = True):
         self.data_df = data_df
         self.slide_window_size = self._correction_slide_window(slide_window_size)
         self.slide_window_step = slide_window_step
         self.threshold = threshold
+        self.peak_region = peak_region
+        self.is_linear = is_linear
         
     def _correction_slide_window(self, slide_window_size: int):
         if slide_window_size > len(self.data_df):
@@ -30,6 +34,29 @@ class SvdCalculator:
         window_slice_power = self._slice_by_window(self.data_df["power"])
         U, s, V = scipy.linalg.svd(window_slice_power, full_matrices=False)
         return U, s, V
+    
+    def get_baseline_df(self):
+        time = self.data_df["time"]
+        power = self.data_df["power"]
+        pre_peak_idx = time < self.peak_region[0]
+        post_peak_idx = time > self.peak_region[1]
+        baseline_idx = pre_peak_idx | post_peak_idx
+        def linear(x, a, b):
+            return a * x + b
+        def quadratic(x, a, b, c):
+            return a * x**2 + b * x + c
+        baseline_time = time[baseline_idx]
+        baseline_power = power[baseline_idx]
+        params_lin, _ = curve_fit(linear, baseline_time, baseline_power)
+        params_quad, _ = curve_fit(quadratic, baseline_time, baseline_power)
+        baseline_linear = linear(time, *params_lin)
+        baseline_quadratic = quadratic(time, *params_quad)
+        if self.is_linear:
+            baseline_final = baseline_linear
+        else:
+            baseline_final = baseline_quadratic
+        # baseline_final = baseline_linear if np.std(baseline_linear - power) < np.std(baseline_quadratic - power) else baseline_quadratic
+        return pd.DataFrame({"time": time, "baseline": baseline_final})
     
     def get_reproduction_peak_df(self):
         u, s, v = self.svd()
