@@ -12,7 +12,7 @@ from scipy.optimize import curve_fit
 
 class ITCPlotter(CommonPlotter):
     def __init__(self, target_df: pd.DataFrame, ax: Axes):
-        super().__init__(target_df, ax)
+        super().__init__(ax)
         self.target_df = target_df
 
     def axis_setting(self):
