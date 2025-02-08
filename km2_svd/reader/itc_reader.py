@@ -1,10 +1,6 @@
 from pathlib import Path
-import seaborn as sns
-import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-import numpy as np
 import pandas as pd
-from km2_svd.plotter.itc_plotter import ITCPlotter
 from km2_svd.reader.common_reader import CommonReader
 
 
