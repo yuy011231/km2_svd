@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 
-def itc_axis_setting(ax: Axes):
-    """ITCグラフの軸設定を行います。"""
+def raw_axis_setting(ax: Axes):
+    """RawDataグラフの軸設定を行います。"""
     ax.set_xlabel("Time[sec]", size="large")
     ax.set_ylabel("μcal/sec", size="large")
     ax.minorticks_on()
