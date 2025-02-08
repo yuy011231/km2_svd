@@ -6,7 +6,7 @@ import pandas as pd
 import seaborn as sns
 from km2_svd.plotter.common_plotter import CommonPlotter
 from km2_svd.svd_calculator import SvdCalculator
-from km2_svd.plotter.axis_settings import singular_value_axis_setting, peak_noise_axis_setting
+from km2_svd.plotter.axis_settings import raw_axis_setting, singular_value_axis_setting, peak_noise_axis_setting
 
 
 class SvdPlotter:
@@ -129,3 +129,14 @@ class PeakNoiseDiffPlotter(CommonPlotter):
 
     def plot(self):
         sns.lineplot(x="count", y="peak_noise_diff", data=self.target_df, ax=self.ax)
+
+class RawDataPlotter(CommonPlotter):
+    def __init__(self, target_df: pd.DataFrame, ax: Axes):
+        super().__init__(ax)
+        self.target_df = target_df
+
+    def axis_setting(self):
+        raw_axis_setting(self.ax)
+
+    def plot(self):
+        sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
