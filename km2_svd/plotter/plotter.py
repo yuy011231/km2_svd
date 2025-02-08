@@ -1,3 +1,4 @@
+from pathlib import Path
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 import numpy as np
@@ -39,6 +40,12 @@ class SvdPlotter:
         self.peak_baseline_plotter.peak_df = self.svd_calculator.get_reproduction_peak_df()
         self.peak_baseline_plotter.baseline_df = self.svd_calculator.get_baseline_df()
         self.peak_baseline_plotter.replot()
+    
+    def save_fig(self, path: Path):
+        self.singular_value_plotter.save_fig(path / "singular_value.png")
+        self.peak_plotter.save_fig(path / "peak.png")
+        self.noise_plotter.save_fig(path / "noise.png")
+        self.peak_baseline_plotter.save_fig(path / "peak_baseline.png")
 
 
 class SingularValuePlotter(CommonPlotter):
