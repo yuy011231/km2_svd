@@ -10,7 +10,7 @@ from km2_svd.plotter.axis_settings import raw_axis_setting, singular_value_axis_
 
 
 class SvdPlotter:
-    def __init__(self, svd_calculator: SvdCalculator, singular_value_ax: Axes, peak_ax: Axes, noise_ax: Axes, peak_noise_ax: Axes):
+    def __init__(self, svd_calculator: SvdCalculator, singular_value_ax: Axes, peak_ax: Axes, noise_ax: Axes, peak_baseline_ax: Axes):
         self.svd_calculator = svd_calculator
         self.singular_value_plotter = SingularValuePlotter(self.singular_value_df(), singular_value_ax)
         self.peak_plotter = PeakPlotter(self.svd_calculator.get_reproduction_peak_df(), peak_ax)
@@ -18,7 +18,7 @@ class SvdPlotter:
         self.peak_baseline_plotter = PeakBaselinePlotter(
             self.svd_calculator.get_reproduction_peak_df(), 
             self.svd_calculator.get_reproduction_noise_df(), 
-            peak_noise_ax
+            peak_baseline_ax
             )
     
     def singular_value_df(self):
@@ -46,6 +46,12 @@ class SvdPlotter:
         self.peak_plotter.save_fig(path / "peak.png")
         self.noise_plotter.save_fig(path / "noise.png")
         self.peak_baseline_plotter.save_fig(path / "peak_baseline.png")
+    
+    def save_csv(self, path: Path):
+        self.svd_calculator.get_reproduction_peak_df().to_csv(path / "peak.csv", index=False)
+        self.svd_calculator.get_reproduction_noise_df().to_csv(path / "noise.csv")
+        self.svd_calculator.get_baseline_df().to_csv(path / "baseline.csv")
+        self.singular_value_df().to_csv(path / "singular_value.csv")
 
 
 class SingularValuePlotter(CommonPlotter):
@@ -140,3 +146,6 @@ class RawDataPlotter(CommonPlotter):
 
     def plot(self):
         sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
+    
+    def save_csv(self, path: Path):
+        self.target_df.to_csv(path / "raw_data.csv", index=False)
