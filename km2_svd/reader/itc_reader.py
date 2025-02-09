@@ -12,9 +12,7 @@ class ItcReader(CommonReader):
             self._data_header = [
                 s.replace(" ", "").replace("\n", "") for s in read_data[:31]
             ]
-            data_body = [
-                s.replace(" ", "").replace("\n", "") for s in read_data[31:]
-            ]
+            data_body = [s.replace(" ", "").replace("\n", "") for s in read_data[31:]]
 
         split_count = -1
         rows = []
@@ -33,7 +31,10 @@ class ItcReader(CommonReader):
 
     @property
     def split_powers(self):
-        return [split_power-split_power[0] for split_power in self._get_split_column("power")]
+        return [
+            split_power - split_power[0]
+            for split_power in self._get_split_column("power")
+        ]
 
     @property
     def split_degrees(self):
@@ -42,9 +43,9 @@ class ItcReader(CommonReader):
     @property
     def split_count(self) -> int:
         return len(self.data_df["titration"].unique())
-    
+
     def get_titration_df(self, titration_count: int) -> pd.DataFrame:
         return self.data_df[self.data_df["titration"] == titration_count]
 
-    def get_itc_plotter(self, ax: Axes=None):
+    def get_itc_plotter(self, ax: Axes = None):
         return ITCPlotter(self.data_df, ax)
