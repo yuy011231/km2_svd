@@ -190,7 +190,7 @@ class PeakNoiseDiffPlotter(CommonPlotter):
         super().__init__(ax)
 
     def axis_setting(self):
-        peak_noise_axis_setting(self.ax)
+        raw_axis_setting(self.ax)
 
     def plot(self):
         sns.lineplot(x="count", y="peak_baseline_diff", data=self.target_df, ax=self.ax)
@@ -209,7 +209,7 @@ class PeakBaselineDiffPlotter(CommonPlotter):
         super().__init__(ax)
 
     def axis_setting(self):
-        peak_noise_axis_setting(self.ax)
+        raw_axis_setting(self.ax)
 
     def plot(self):
         sns.scatterplot(x="count", y="peak_baseline_diff", data=self.target_df, ax=self.ax)
