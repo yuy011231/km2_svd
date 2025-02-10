@@ -3,8 +3,8 @@ from matplotlib.axes import Axes
 
 def raw_axis_setting(ax: Axes):
     """RawDataグラフの軸設定を行います。"""
-    ax.set_xlabel("Time[sec]", size="large")
-    ax.set_ylabel("μcal/sec", size="large")
+    ax.set_xlabel("Number of titration", size="large")
+    ax.set_ylabel("Electric Energy", size="large")
     ax.minorticks_on()
     ax.grid(which="major", color="black", alpha=0.5)
     ax.grid(which="minor", color="gray", linestyle=":")
