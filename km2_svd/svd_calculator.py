@@ -8,12 +8,11 @@ from scipy.optimize import curve_fit
 
 
 class SvdCalculator:
-    def __init__(self, data_df: pd.DataFrame, slide_window_size: int, slide_window_step: int, threshold: int, peak_region: tuple = (1, 150), *, is_linear: bool = True):
+    def __init__(self, data_df: pd.DataFrame, slide_window_size: int, slide_window_step: int, threshold: int, *, is_linear: bool = True):
         self.data_df = data_df
         self.slide_window_size = self._correction_slide_window(slide_window_size)
         self.slide_window_step = slide_window_step
         self.threshold = threshold
-        self.peak_region = peak_region
         self.is_linear = is_linear
         self.start_idx = 0
         self.end_idx = 0
