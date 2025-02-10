@@ -5,7 +5,7 @@ import numpy as np
 
 class CommonReader(ABC):
     COLUMNS = ["titration", "time", "power", "degree"]
-    
+
     @property
     @abstractmethod
     def split_times(self):
@@ -41,11 +41,9 @@ class CommonReader(ABC):
         Returns:
             int: 滴定回数
         """
-    
+
     def _get_split_column(self, key: str):
         return [
-            self.data_df[self.data_df["titration"] == split_count][
-                key
-            ].to_numpy()
+            self.data_df[self.data_df["titration"] == split_count][key].to_numpy()
             for split_count in range(self.split_count)
         ]
