@@ -176,7 +176,6 @@ class PowerPlotter(CommonPlotter):
     def plot(self):
         sns.lineplot(x="time", y="power", data=self.target_df, ax=self.ax)
 
-
 class PeakNoiseDiffPlotter(CommonPlotter):
     def __init__(self, svd_calculators: list[SvdCalculator], ax: Axes):
         self.svd_calculators = svd_calculators
