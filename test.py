@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from matplotlib import pyplot as plt
-from km2_svd.plotter.plotter import SvdPlotter, PeakNoiseDiffPlotter, PowerPlotter
+from km2_svd.plotter.plotter import PeakBaselineDiffPlotter, SvdPlotter, PeakNoiseDiffPlotter, PowerPlotter
 from km2_svd.reader.common_reader import CommonReader
 from km2_svd.reader.itc_reader import ItcReader
 from km2_svd.svd_calculator import SvdCalculator
@@ -30,7 +30,7 @@ ax5 = fig5.add_subplot(1, 1, 1)
 svd_calculator = SvdCalculator(reader.get_titration_df(5), 10, 1, 1)
 #svd_calculator.get_baseline_df()
 
-# svd_plotter = SvdPlotter(svd_calculator, ax, ax2, ax3, ax5)
+svd_plotter = SvdPlotter(svd_calculator, ax, ax2, ax3, ax5)
 # svd_plotter.singular_value_plotter.plot()
 # svd_plotter.singular_value_plotter.save_fig("singular_value.png")
 
@@ -43,6 +43,6 @@ svd_calculator = SvdCalculator(reader.get_titration_df(5), 10, 1, 1)
 # svd_plotter.peak_baseline_plot()
 # svd_plotter.peak_baseline_plotter.save_fig("peak_baseline1.png")
 
-# peak_noise_diff_plotter = PeakNoiseDiffPlotter(svd_calculators, ax4)
-# peak_noise_diff_plotter.plot()
-# peak_noise_diff_plotter.save_fig("peak_noise_diff.png")
+peak_baseline_diff_plotter = PeakBaselineDiffPlotter(svd_calculators, ax4)
+peak_baseline_diff_plotter.plot()
+peak_baseline_diff_plotter.save_fig("peak_baseline_diff.png")

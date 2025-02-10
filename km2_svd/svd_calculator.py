@@ -15,6 +15,9 @@ class SvdCalculator:
         self.threshold = threshold
         self.peak_region = peak_region
         self.is_linear = is_linear
+        self.start_idx = 0
+        self.end_idx = 0
+        self.detect_peak_range()
         
     def _correction_slide_window(self, slide_window_size: int):
         if slide_window_size > len(self.data_df):
@@ -36,20 +39,25 @@ class SvdCalculator:
         return U, s, V
     
     def detect_peak_range(self)->Tuple[int, int]:
-        return 0, 35
+        self.start_idx = 0
+        self.end_idx = 35
+    
+    def set_start_idx(self, start_idx: int):
+        self.start_idx = start_idx
+    
+    def set_end_idx(self, end_idx: int):
+        self.end_idx = end_idx
     
     def get_baseline_df(self):
-        start_idx, end_idx = self.detect_peak_range()
-        
         peak_df= self.get_reproduction_peak_df()
         
-        if start_idx < 2:
-            start_idx = 0
+        if self.start_idx < 2:
+            self.start_idx = 0
             pre_peak_baseline = None
         else:
-            pre_peak_baseline= self.get_range_baseline(0, start_idx)
-        post_peak_baseline = self.get_range_baseline(end_idx, -1)
-        peak_baseline = self.get_peak_baseline(start_idx, end_idx, peak_df)
+            pre_peak_baseline= self.get_range_baseline(0, self.start_idx)
+        post_peak_baseline = self.get_range_baseline(self.end_idx, -1)
+        peak_baseline = self.get_peak_baseline(self.start_idx, self.end_idx, peak_df)
         
         return pd.DataFrame({
                 "time": self.data_df["time"], 
@@ -129,3 +137,28 @@ class SvdCalculator:
         time = self.data_df["time"].reset_index(drop=True)
         x_axis = np.linspace(time.iloc[0], time.iloc[-1], len(peak))
         return simpson(y=peak, x=x_axis) - simpson(y=noise, x=x_axis)
+    
+    def calculation_peak_baseline_diff(self) -> float:
+        u, s, v = self.svd()
+        peak = self._reconstruct_from_windows(self._reproduction_peak(u, s, v), len(self.data_df))
+        time = self.data_df["time"].reset_index(drop=True)
+        x_axis = np.linspace(time.iloc[0], time.iloc[-1], len(peak))
+        
+        baseline_df = self.get_baseline_df()
+        pre_peak_baseline = baseline_df["pre_peak_baseline"].to_numpy()
+        peak_baseline = baseline_df["peak_baseline"].to_numpy()
+        post_peak_baseline = baseline_df["post_peak_baseline"].to_numpy()
+        
+        if self.start_idx < 2:
+            integral_pre_peak_baseline = 0
+        else:
+            integral_pre_peak_baseline = simpson(y=pre_peak_baseline[:self.start_idx], x=x_axis[:self.start_idx])
+        if self.end_idx - self.start_idx < 2:
+            integral_peak_baseline = 0
+        else:
+            integral_peak_baseline = simpson(y=peak_baseline[self.start_idx:self.end_idx], x=x_axis[self.start_idx:self.end_idx])  
+        if len(post_peak_baseline) - self.end_idx < 2:
+            integral_post_peak_baseline = 0
+        else:
+            integral_post_peak_baseline = simpson(y=post_peak_baseline[self.end_idx:], x=x_axis[self.end_idx:])
+        return simpson(y=peak, x=x_axis) - (integral_pre_peak_baseline + integral_peak_baseline + integral_post_peak_baseline)

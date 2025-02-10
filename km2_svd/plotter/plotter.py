@@ -180,13 +180,13 @@ class PowerPlotter(CommonPlotter):
 class PeakNoiseDiffPlotter(CommonPlotter):
     def __init__(self, svd_calculators: list[SvdCalculator], ax: Axes):
         self.svd_calculators = svd_calculators
-        self.peak_noise_diff_list = [
+        self.peak_baseline_diff_list = [
             svd_calculator.calculation_peak_noise_diff()
             for svd_calculator in svd_calculators
         ]
         self.counts = range(1, len(svd_calculators) + 1)
         self.target_df = pd.DataFrame(
-            {"count": self.counts, "peak_noise_diff": self.peak_noise_diff_list}
+            {"count": self.counts, "peak_baseline_diff": self.peak_baseline_diff_list}
         )
         super().__init__(ax)
 
@@ -194,7 +194,26 @@ class PeakNoiseDiffPlotter(CommonPlotter):
         peak_noise_axis_setting(self.ax)
 
     def plot(self):
-        sns.lineplot(x="count", y="peak_noise_diff", data=self.target_df, ax=self.ax)
+        sns.lineplot(x="count", y="peak_baseline_diff", data=self.target_df, ax=self.ax)
+    
+class PeakBaselineDiffPlotter(CommonPlotter):
+    def __init__(self, svd_calculators: list[SvdCalculator], ax: Axes):
+        self.svd_calculators = svd_calculators
+        self.peak_noise_diff_list = [
+            svd_calculator.calculation_peak_baseline_diff()
+            for svd_calculator in svd_calculators
+        ]
+        self.counts = range(1, len(svd_calculators) + 1)
+        self.target_df = pd.DataFrame(
+            {"count": self.counts, "peak_baseline_diff": self.peak_noise_diff_list}
+        )
+        super().__init__(ax)
+
+    def axis_setting(self):
+        peak_noise_axis_setting(self.ax)
+
+    def plot(self):
+        sns.scatterplot(x="count", y="peak_baseline_diff", data=self.target_df, ax=self.ax)
 
 
 class RawDataPlotter(CommonPlotter):
