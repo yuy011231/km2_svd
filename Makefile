@@ -8,3 +8,7 @@ format:
 .PHONV: lint
 lint:
 	poetry run ruff ${TARGET_FILES}
+
+.PHONV: install
+install:
+	poetry install
